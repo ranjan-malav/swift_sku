@@ -13,7 +13,7 @@
         android:theme="@style/Theme.SwiftSku"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.dashboard.MainActivity"
             android:screenOrientation="landscape"
             android:exported="true">
             <intent-filter>
