@@ -1,17 +1,18 @@
 package com.ranjan.malav.swiftsku.ui.dashboard
 
 import android.os.Bundle
-import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.ranjan.malav.swiftsku.data.local.AppDatabase
-import com.ranjan.malav.swiftsku.data.repository.PriceBookRepository
-import com.ranjan.malav.swiftsku.data.repository.TransactionRepository
 import com.ranjan.malav.swiftsku.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private val viewModel: DashboardViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

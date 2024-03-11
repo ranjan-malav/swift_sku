@@ -1,4 +1,4 @@
-package com.ranjan.malav.swiftsku.data.dao
+package com.ranjan.malav.swiftsku.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
