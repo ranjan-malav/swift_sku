@@ -18,6 +18,5 @@ class DashboardActivity : AppCompatActivity() {
         setContent { DashboardLayout(viewModel) }
 
         viewModel.getPriceBookData()
-        viewModel.getTransactions()
     }
 }

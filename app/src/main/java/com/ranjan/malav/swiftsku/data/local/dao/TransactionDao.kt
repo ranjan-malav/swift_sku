@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.ranjan.malav.swiftsku.data.model.Transaction
 import com.ranjan.malav.swiftsku.data.model.TransactionStatus
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -14,7 +15,7 @@ interface TransactionDao {
     suspend fun getAll(): List<Transaction>
 
     @Query("SELECT * from `transaction` WHERE txnStatus = :status")
-    suspend fun getCompletedTransactions(status: TransactionStatus): List<Transaction>
+    fun getCompletedTransactions(status: TransactionStatus): Flow<List<Transaction>>
 
     @Insert
     suspend fun insertAll(vararg trxs: Transaction)

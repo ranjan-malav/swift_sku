@@ -40,10 +40,11 @@ class DashboardViewModel @Inject constructor(
     private var _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     var transactions: StateFlow<List<Transaction>> = _transactions
 
-    fun getTransactions() = viewModelScope.launch(Dispatchers.IO) {
-        val trxs = trxRepo.getCompletedTransactions()
-        withContext(Dispatchers.Main) {
-            _transactions.value = trxs
+    init {
+        viewModelScope.launch {
+            trxRepo.getCompletedTransactions().collect {
+                _transactions.value = it
+            }
         }
     }
 
