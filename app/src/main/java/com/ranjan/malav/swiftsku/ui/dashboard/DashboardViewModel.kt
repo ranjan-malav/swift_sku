@@ -12,7 +12,10 @@ import com.ranjan.malav.swiftsku.data.repository.PriceBookRepository
 import com.ranjan.malav.swiftsku.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -27,11 +30,11 @@ class DashboardViewModel @Inject constructor(
     var bookItems: LiveData<List<PriceBookItem>> = _bookItems
 
     private var selectedItems = arrayListOf<TransactionItem>()
-    private var _selectedItems = MutableLiveData<ArrayList<TransactionItem>>()
-    var selectedItemsLive: LiveData<ArrayList<TransactionItem>> = _selectedItems
+    private var _selectedItems = MutableStateFlow(selectedItems)
+    var selectedItemsLive: StateFlow<ArrayList<TransactionItem>> = _selectedItems
 
-    private var _totals = MutableLiveData(Totals())
-    var totals: LiveData<Totals> = _totals
+    private var _totals = MutableStateFlow(Totals())
+    var totals: StateFlow<Totals> = _totals
 
     private var savedTrx: Transaction? = null
     private var trxStartTime: Date? = null
@@ -74,8 +77,10 @@ class DashboardViewModel @Inject constructor(
         )
         trxRepo.upsert(trx)
         selectedItems.clear()
-        _selectedItems.postValue(selectedItems)
-        _totals.postValue(Totals())
+        withContext(Dispatchers.Main) {
+            _selectedItems.value = selectedItems
+            _totals.value = Totals()
+        }
     }
 
     fun recallTransaction() = viewModelScope.launch(Dispatchers.IO) {
@@ -84,10 +89,14 @@ class DashboardViewModel @Inject constructor(
         savedTrx?.let {
             this@DashboardViewModel.savedTrx = it
             selectedItems.addAll(it.txnItems)
-            _selectedItems.postValue(selectedItems)
+            withContext(Dispatchers.Main) {
+                _selectedItems.value = selectedItems
+            }
         }
         val totals = calculateTotals()
-        _totals.postValue(totals)
+        withContext(Dispatchers.Main) {
+            _totals.value = totals
+        }
     }
 
     fun completeTransaction() = viewModelScope.launch(Dispatchers.IO) {
@@ -104,8 +113,10 @@ class DashboardViewModel @Inject constructor(
         )
         trxRepo.upsert(trx)
         selectedItems.clear()
-        _selectedItems.postValue(selectedItems)
-        _totals.postValue(Totals())
+        withContext(Dispatchers.Main) {
+            _selectedItems.value = selectedItems
+            _totals.value = Totals()
+        }
     }
 
     data class Totals(

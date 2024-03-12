@@ -1,6 +1,7 @@
 package com.ranjan.malav.swiftsku.ui.dashboard
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -22,7 +23,9 @@ class DashboardActivity : AppCompatActivity(), BookItemsAdapter.Callback {
         super.onCreate(savedInstanceState)
 
         binding = ActivityDashboardBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+//        setContentView(binding.root)
+
+        setContent { DashboardLayout(viewModel) }
 
         viewModel.getPriceBookData()
         viewModel.getTransactions()
@@ -36,19 +39,19 @@ class DashboardActivity : AppCompatActivity(), BookItemsAdapter.Callback {
             }
         }
 
-        viewModel.selectedItemsLive.observe(this) {
-            binding.rvCartItems.apply {
-                layoutManager = LinearLayoutManager(this@DashboardActivity)
-                adapter = CartItemsAdapter(it)
-            }
-        }
+//        viewModel.selectedItemsLive.observe(this) {
+//            binding.rvCartItems.apply {
+//                layoutManager = LinearLayoutManager(this@DashboardActivity)
+//                adapter = CartItemsAdapter(it)
+//            }
+//        }
 
-        viewModel.totals.observe(this) {
-            binding.tvSubTotalValue.text = formatAmount(it.subTotalAmount)
-            binding.tvTaxValue.text = formatAmount(it.taxAmount)
-            binding.tvDiscountValue.text = formatAmount(it.discountAmount)
-            binding.tvGrandTotalValue.text = formatAmount(it.grandTotal)
-        }
+//        viewModel.totals.observe(this) {
+//            binding.tvSubTotalValue.text = formatAmount(it.subTotalAmount)
+//            binding.tvTaxValue.text = formatAmount(it.taxAmount)
+//            binding.tvDiscountValue.text = formatAmount(it.discountAmount)
+//            binding.tvGrandTotalValue.text = formatAmount(it.grandTotal)
+//        }
 
         viewModel.transactions.observe(this) {
             binding.tvCustomerCountValue.text = "${it.size}"
