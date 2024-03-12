@@ -99,6 +99,7 @@ fun CartHeader() {
                 text = "QTY",
                 fontWeight = FontWeight.W600,
                 modifier = Modifier
+                    .weight(1f)
                     .wrapContentWidth(Alignment.CenterHorizontally)
             )
             Text(
@@ -120,22 +121,34 @@ fun CartItems(cartItems: ArrayList<TransactionItem>) {
     ) {
         items(cartItems) { item ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 8.dp, 0.dp, 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = item.pluItem.itemName,
-                    fontWeight = FontWeight.W600,
                     modifier = Modifier.weight(2f)
                 )
-                Text(
-                    text = "x${item.quantity}",
-                    fontWeight = FontWeight.W600,
+                Box(
                     modifier = Modifier
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
+                        .padding(vertical = 8.dp, horizontal = 10.dp)
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "x${item.quantity}",
+                        modifier = Modifier
+                            .wrapContentWidth(Alignment.CenterHorizontally)
+                            .background(
+                                color = Color(0xFFE3E3E3),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                    )
+                }
                 Text(
                     text = formatAmount(item.pluItem.price * item.quantity),
-                    fontWeight = FontWeight.W600,
                     textAlign = TextAlign.End,
                     modifier = Modifier.weight(1f)
                 )
