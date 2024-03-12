@@ -39,7 +39,7 @@ import com.ranjan.malav.swiftsku.ui.utils.percent
 fun TransactionDialog(
     viewModel: DashboardViewModel, hideTrxs: () -> Unit
 ) {
-    val transactions by viewModel.transactions.collectAsState()
+    val transactions by viewModel.transactions.collectAsState(initial = emptyList())
 
     Dialog(
         onDismissRequest = { hideTrxs() },

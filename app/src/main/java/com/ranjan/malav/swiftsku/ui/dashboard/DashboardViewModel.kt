@@ -10,6 +10,7 @@ import com.ranjan.malav.swiftsku.data.repository.PriceBookRepository
 import com.ranjan.malav.swiftsku.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -37,16 +38,7 @@ class DashboardViewModel @Inject constructor(
     private var savedTrx: Transaction? = null
     private var trxStartTime: Date? = null
 
-    private var _transactions = MutableStateFlow<List<Transaction>>(emptyList())
-    var transactions: StateFlow<List<Transaction>> = _transactions
-
-    init {
-        viewModelScope.launch {
-            trxRepo.getCompletedTransactions().collect {
-                _transactions.value = it
-            }
-        }
-    }
+    val transactions: Flow<List<Transaction>> = trxRepo.getCompletedTransactions()
 
     fun getPriceBookData() = viewModelScope.launch(Dispatchers.IO) {
         val bookItems = priceBookRepo.getPriceBook()

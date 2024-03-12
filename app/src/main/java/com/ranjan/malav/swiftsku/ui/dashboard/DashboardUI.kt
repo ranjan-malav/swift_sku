@@ -52,7 +52,7 @@ fun DashboardLayout(
 ) {
     val cartItems by viewModel.selectedItemsLive.collectAsState()
     val totals by viewModel.totals.collectAsState()
-    val transactions by viewModel.transactions.collectAsState()
+    val transactions by viewModel.transactions.collectAsState(initial = emptyList())
     val bookItems by viewModel.bookItems.collectAsState()
     val itemClick: (item: PriceBookItem) -> Unit = {
         viewModel.selectItem(it)
