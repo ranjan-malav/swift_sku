@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +44,10 @@ import com.ranjan.malav.swiftsku.data.model.PriceBookItem
 import com.ranjan.malav.swiftsku.data.model.Transaction
 import com.ranjan.malav.swiftsku.data.model.TransactionItem
 import com.ranjan.malav.swiftsku.ui.utils.UiUtils.formatAmount
+import com.ranjan.malav.swiftsku.ui.utils.UiUtils.formatDate
 import com.ranjan.malav.swiftsku.ui.utils.percent
+import kotlinx.coroutines.delay
+import java.util.Date
 
 
 @Composable
@@ -353,52 +357,72 @@ fun ActionFooter(
             .fillMaxWidth()
             .background(Color(0xFFF6F6F6))
             .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        ClickableText(
-            onClick = { viewModel.saveTransaction() },
-            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(color = Color.Black, fontWeight = W500)
-                ) {
-                    append("Save")
+        Row(
+            horizontalArrangement = Arrangement.Start,
+        ) {
+            ClickableText(
+                onClick = { viewModel.saveTransaction() },
+                modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = Color.Black, fontWeight = W500)
+                    ) {
+                        append("Save")
+                    }
                 }
-            }
-        )
-        ClickableText(
-            onClick = { viewModel.recallTransaction() },
-            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(color = Color.Black, fontWeight = W500)
-                ) {
-                    append("Recall")
+            )
+            ClickableText(
+                onClick = { viewModel.recallTransaction() },
+                modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = Color.Black, fontWeight = W500)
+                    ) {
+                        append("Recall")
+                    }
                 }
-            }
-        )
-        ClickableText(
-            onClick = { showTrxs() },
-            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(color = Color.Black, fontWeight = W500)
-                ) {
-                    append("Txn History")
+            )
+            ClickableText(
+                onClick = { showTrxs() },
+                modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = Color.Black, fontWeight = W500)
+                    ) {
+                        append("Txn History")
+                    }
                 }
-            }
-        )
-        ClickableText(
-            onClick = { viewModel.completeTransaction() },
-            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(color = Color.Black, fontWeight = W500)
-                ) {
-                    append("Complete")
+            )
+            ClickableText(
+                onClick = { viewModel.completeTransaction() },
+                modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(color = Color.Black, fontWeight = W500)
+                    ) {
+                        append("Complete")
+                    }
                 }
-            }
-        )
+            )
+        }
+        Clock()
     }
+}
+
+@Composable
+@Preview
+fun Clock() {
+    var currentTime by remember { mutableStateOf(Date()) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            currentTime = Date()
+        }
+    }
+
+    Text(formatDate(currentTime))
 }

@@ -19,7 +19,7 @@ object UiUtils {
     fun formatDate(date: Date): String {
         val calendar = Calendar.getInstance()
         calendar.time = date
-        val formatter = SimpleDateFormat("MMM d, yyyy HH:mm a", Locale.ROOT)
+        val formatter = SimpleDateFormat("MMM d, yyyy HH:mm a", Locale.ENGLISH)
         return formatter.format(calendar.time)
     }
 
@@ -27,7 +27,7 @@ object UiUtils {
         if (time == null) return ""
         val calendar = Calendar.getInstance()
         calendar.time = time
-        val formatter = SimpleDateFormat("HH:mm a", Locale.ROOT)
+        val formatter = SimpleDateFormat("HH:mm a", Locale.ENGLISH)
         return formatter.format(calendar.time)
     }
 }
