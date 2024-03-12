@@ -54,6 +54,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun saveTransaction() = viewModelScope.launch(Dispatchers.IO) {
+        if (selectedItems.isEmpty()) return@launch
         val totals = calculateTotals()
         val savedTrx = trxRepo.findTrxByStatus(TransactionStatus.SAVED)
         // If there is any saved trx, replace it's content
@@ -83,6 +84,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun completeTransaction() = viewModelScope.launch(Dispatchers.IO) {
+        if (selectedItems.isEmpty()) return@launch
         val totals = calculateTotals()
         val rowId = savedTrx?.txnId ?: 0
         val trx = Transaction(
