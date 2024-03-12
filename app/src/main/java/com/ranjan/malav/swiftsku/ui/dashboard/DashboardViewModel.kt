@@ -47,6 +47,9 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Add a selected price book item to the cart items.
+     */
     fun selectItem(item: PriceBookItem) {
         if (trxStartTime == null) trxStartTime = Date()
         val existing = selectedItems.firstOrNull { it.pluItem == item }
@@ -60,6 +63,9 @@ class DashboardViewModel @Inject constructor(
         _totals.value = totals
     }
 
+    /**
+     * Save this transaction with status SAVED
+     */
     fun saveTransaction() = viewModelScope.launch(Dispatchers.IO) {
         if (selectedItems.isEmpty()) return@launch
         val totals = calculateTotals()
@@ -80,22 +86,28 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Recall a previously saved transaction.
+     * Doesn't do anything if there is no saved transaction
+     */
     fun recallTransaction() = viewModelScope.launch(Dispatchers.IO) {
         val savedTrx = trxRepo.findTrxByStatus(TransactionStatus.SAVED)
         // If there is any saved trx, replace it's content
         savedTrx?.let {
             this@DashboardViewModel.savedTrx = it
             selectedItems.addAll(it.txnItems)
+            val totals = calculateTotals()
             withContext(Dispatchers.Main) {
                 _selectedItems.value = selectedItems
+                _totals.value = totals
             }
-        }
-        val totals = calculateTotals()
-        withContext(Dispatchers.Main) {
-            _totals.value = totals
         }
     }
 
+    /**
+     * Creates a new transaction if saved transaction wasn't recalled
+     * If saved transaction was recalled, it'll update status of that transaction itself.
+     */
     fun completeTransaction() = viewModelScope.launch(Dispatchers.IO) {
         if (selectedItems.isEmpty()) return@launch
         val totals = calculateTotals()
@@ -116,6 +128,9 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /**
+     * A helper data class to combine all the amounts of the transaction
+     */
     data class Totals(
         var grandTotal: Float = 0f,
         var discountAmount: Float = 0f,
@@ -123,6 +138,9 @@ class DashboardViewModel @Inject constructor(
         var subTotalAmount: Float = 0f
     )
 
+    /**
+     * Calculates Sub total, tax total, discount amount and grand total
+     */
     private fun calculateTotals(): Totals {
         var subTotal = 0f
         var taxTotal = 0f
