@@ -80,6 +80,7 @@ class DashboardViewModel @Inject constructor(
         )
         trxRepo.upsert(trx)
         selectedItems.clear()
+        this@DashboardViewModel.savedTrx = null
         withContext(Dispatchers.Main) {
             _selectedItems.value = selectedItems
             _totals.value = Totals()
@@ -91,6 +92,9 @@ class DashboardViewModel @Inject constructor(
      * Doesn't do anything if there is no saved transaction
      */
     fun recallTransaction() = viewModelScope.launch(Dispatchers.IO) {
+        if (savedTrx != null) {
+            return@launch
+        }
         val savedTrx = trxRepo.findTrxByStatus(TransactionStatus.SAVED)
         // If there is any saved trx, replace it's content
         savedTrx?.let {
@@ -122,6 +126,7 @@ class DashboardViewModel @Inject constructor(
         )
         trxRepo.upsert(trx)
         selectedItems.clear()
+        savedTrx = null
         withContext(Dispatchers.Main) {
             _selectedItems.value = selectedItems
             _totals.value = Totals()
