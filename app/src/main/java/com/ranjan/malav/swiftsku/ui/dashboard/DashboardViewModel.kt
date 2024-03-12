@@ -1,7 +1,5 @@
 package com.ranjan.malav.swiftsku.ui.dashboard
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ranjan.malav.swiftsku.data.model.PriceBookItem
@@ -26,8 +24,8 @@ class DashboardViewModel @Inject constructor(
     private val priceBookRepo: PriceBookRepository
 ) : ViewModel() {
 
-    private var _bookItems = MutableLiveData<List<PriceBookItem>>()
-    var bookItems: LiveData<List<PriceBookItem>> = _bookItems
+    private var _bookItems = MutableStateFlow<List<PriceBookItem>>(emptyList())
+    var bookItems: StateFlow<List<PriceBookItem>> = _bookItems
 
     private var selectedItems = arrayListOf<TransactionItem>()
     private var _selectedItems = MutableStateFlow(selectedItems)
@@ -39,15 +37,21 @@ class DashboardViewModel @Inject constructor(
     private var savedTrx: Transaction? = null
     private var trxStartTime: Date? = null
 
-    private var _transactions = MutableLiveData<List<Transaction>>()
-    var transactions: LiveData<List<Transaction>> = _transactions
+    private var _transactions = MutableStateFlow<List<Transaction>>(emptyList())
+    var transactions: StateFlow<List<Transaction>> = _transactions
 
     fun getTransactions() = viewModelScope.launch(Dispatchers.IO) {
-        _transactions.postValue(trxRepo.getAllTransactions())
+        val trxs = trxRepo.getAllTransactions()
+        withContext(Dispatchers.Main) {
+            _transactions.value = trxs
+        }
     }
 
     fun getPriceBookData() = viewModelScope.launch(Dispatchers.IO) {
-        _bookItems.postValue(priceBookRepo.getPriceBook())
+        val bookItems = priceBookRepo.getPriceBook()
+        withContext(Dispatchers.Main) {
+            _bookItems.value = bookItems
+        }
     }
 
     fun selectItem(item: PriceBookItem) {

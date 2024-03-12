@@ -3,6 +3,7 @@ package com.ranjan.malav.swiftsku.ui.dashboard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,10 +28,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.W500
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ranjan.malav.swiftsku.data.model.PriceBookItem
+import com.ranjan.malav.swiftsku.data.model.Transaction
 import com.ranjan.malav.swiftsku.data.model.TransactionItem
 import com.ranjan.malav.swiftsku.ui.utils.UiUtils.formatAmount
 import com.ranjan.malav.swiftsku.ui.utils.percent
@@ -40,12 +49,17 @@ fun DashboardLayout(
 ) {
     val cartItems by viewModel.selectedItemsLive.collectAsState()
     val totals by viewModel.totals.collectAsState()
+    val transactions by viewModel.transactions.collectAsState()
+    val bookItems by viewModel.bookItems.collectAsState()
+    val itemClick: (item: PriceBookItem) -> Unit = {
+        viewModel.selectItem(it)
+    }
 
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
         LeftSection(cartItems, totals)
-        RightSection()
+        RightSection(transactions, bookItems, itemClick, viewModel)
     }
 }
 
@@ -123,7 +137,7 @@ fun CartItems(cartItems: ArrayList<TransactionItem>) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(0.dp, 8.dp, 0.dp, 8.dp),
+                    .padding(0.dp, 4.dp, 0.dp, 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -133,13 +147,12 @@ fun CartItems(cartItems: ArrayList<TransactionItem>) {
                 Box(
                     modifier = Modifier
                         .padding(vertical = 8.dp, horizontal = 10.dp)
-                        .weight(1f),
+                        .wrapContentWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "x${item.quantity}",
                         modifier = Modifier
-                            .wrapContentWidth(Alignment.CenterHorizontally)
                             .background(
                                 color = Color(0xFFE3E3E3),
                                 shape = RoundedCornerShape(8.dp)
@@ -175,7 +188,7 @@ fun TotalFooter(totals: DashboardViewModel.Totals) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "${totals.subTotalAmount}",
+                    text = formatAmount(totals.subTotalAmount),
                     modifier = Modifier
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
@@ -188,7 +201,7 @@ fun TotalFooter(totals: DashboardViewModel.Totals) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "${totals.taxAmount}",
+                    text = formatAmount(totals.taxAmount),
                     modifier = Modifier
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
@@ -202,7 +215,7 @@ fun TotalFooter(totals: DashboardViewModel.Totals) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "${totals.discountAmount}",
+                    text = formatAmount(totals.discountAmount),
                     color = Color(0xFF4BD461),
                     modifier = Modifier
                         .wrapContentWidth(Alignment.CenterHorizontally)
@@ -219,7 +232,7 @@ fun TotalFooter(totals: DashboardViewModel.Totals) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "${totals.grandTotal}",
+                    text = formatAmount(totals.grandTotal),
                     fontWeight = FontWeight.W700,
                     modifier = Modifier
                         .wrapContentWidth(Alignment.CenterHorizontally)
@@ -230,107 +243,146 @@ fun TotalFooter(totals: DashboardViewModel.Totals) {
 }
 
 @Composable
-@Preview
-fun RightSection() {
+fun RightSection(
+    transactions: List<Transaction>,
+    bookItems: List<PriceBookItem>,
+    onItemClick: (item: PriceBookItem) -> Unit,
+    viewModel: DashboardViewModel
+) {
+    val totalSales = transactions.sumOf { it.txnTotalGrandAmount.toDouble() }
+    val totalCount = transactions.size
     Box(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth()
-            .background(Color.White)
+            .background(Color(0xFFE1E1E1))
     ) {
-        // Content of right section
-        Text(
-            text = "Right Section",
-            modifier = Modifier.align(Alignment.Center)
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SalesHeader(totalSales.toFloat(), totalCount)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(start = 8.dp, end = 8.dp)
+            ) {
+                BookItems(bookItems, onItemClick)
+            }
+            ActionFooter(viewModel)
+        }
     }
 }
 
 @Composable
-@Preview
-fun ActionsBar() {
+fun SalesHeader(totalSales: Float, trxCount: Int) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFFF6F6F6))
+    ) {
+        Row {
+            Column(modifier = Modifier.padding(start = 16.dp)) {
+                Text(
+                    text = "Total Sales",
+                )
+                Text(
+                    fontWeight = FontWeight.W600,
+                    text = formatAmount(totalSales),
+                )
+            }
+            Column(modifier = Modifier.padding(start = 16.dp)) {
+                Text(
+                    text = "Customer Count",
+                )
+                Text(text = "$trxCount", fontWeight = FontWeight.W600)
+            }
+        }
+    }
+}
+
+@Composable
+fun BookItems(
+    bookItems: List<PriceBookItem>,
+    itemClick: (item: PriceBookItem) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(5),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        items(bookItems) { item ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color(0xFF513DA3))
+                    .padding(8.dp)
+                    .clickable(onClick = { itemClick(item) }),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = item.itemName,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ActionFooter(viewModel: DashboardViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .background(Color(0xFFF6F6F6))
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { /* Handle Save button click */ },
-                modifier = Modifier.padding(start = 16.dp)
-            ) {
-                Text(text = "Save")
+        ClickableText(
+            onClick = { viewModel.saveTransaction() },
+            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(color = Color.Black, fontWeight = W500)
+                ) {
+                    append("Save")
+                }
             }
-            Button(
-                onClick = { /* Handle Recall button click */ },
-                modifier = Modifier.padding(start = 16.dp)
-            ) {
-                Text(text = "Recall")
-            }
-            Button(
-                onClick = { /* Handle Txn History button click */ },
-                modifier = Modifier.padding(start = 16.dp)
-            ) {
-                Text(text = "Txn History")
-            }
-            Button(
-                onClick = { /* Handle Complete button click */ },
-                modifier = Modifier.padding(start = 16.dp)
-            ) {
-                Text(text = "Complete")
-            }
-        }
-        Text(
-            text = "Aug 2, 2022 18:23AM",
-            style = MaterialTheme.typography.body1,
-            modifier = Modifier.padding(vertical = 16.dp)
         )
-    }
-}
-
-@Composable
-@Preview
-fun CartHeading() {
-    Row(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = "Fountain-32oz",
-            style = MaterialTheme.typography.h6,
-            modifier = Modifier.weight(2f)
+        ClickableText(
+            onClick = { viewModel.recallTransaction() },
+            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(color = Color.Black, fontWeight = W500)
+                ) {
+                    append("Recall")
+                }
+            }
         )
-        Box(
-            modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 10.dp)
-                .weight(1f)
-                .background(
-                    color = Color(0xFFE3E3E3),
-                    shape = RoundedCornerShape(100.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "x27",
-                style = MaterialTheme.typography.h6,
-                modifier = Modifier
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            )
-        }
-        Text(
-            text = "$42.93",
-            style = MaterialTheme.typography.h6,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f)
+        ClickableText(
+            onClick = { },
+            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(color = Color.Black, fontWeight = W500)
+                ) {
+                    append("Txn History")
+                }
+            }
+        )
+        ClickableText(
+            onClick = { viewModel.completeTransaction() },
+            modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(color = Color.Black, fontWeight = W500)
+                ) {
+                    append("Complete")
+                }
+            }
         )
     }
 }
