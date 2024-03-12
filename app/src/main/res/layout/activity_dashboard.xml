@@ -69,7 +69,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ll_cart_heading"
             tools:itemCount="2"
-            tools:listitem="@layout/list_item" />
+            tools:listitem="@layout/list_cart_item" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_cart_total"
@@ -202,9 +202,9 @@
                 style="@style/TextAppearance.Material3.BodyMedium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="$4,356.28"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_total_sales_label" />
+                app:layout_constraintTop_toBottomOf="@id/tv_total_sales_label"
+                tools:text="$4,356.28" />
 
             <TextView
                 android:id="@+id/tv_customer_count_label"
@@ -221,9 +221,9 @@
                 style="@style/TextAppearance.Material3.BodyMedium"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="345"
                 app:layout_constraintStart_toStartOf="@id/tv_customer_count_label"
-                app:layout_constraintTop_toBottomOf="@id/tv_customer_count_label" />
+                app:layout_constraintTop_toBottomOf="@id/tv_customer_count_label"
+                tools:text="345" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

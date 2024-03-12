@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ranjan.malav.swiftsku.data.model.PriceBookItem
 import com.ranjan.malav.swiftsku.databinding.ActivityDashboardBinding
+import com.ranjan.malav.swiftsku.ui.utils.UiUtils.formatAmount
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -24,6 +25,7 @@ class DashboardActivity : AppCompatActivity(), BookItemsAdapter.Callback {
         setContentView(binding.root)
 
         viewModel.getPriceBookData()
+        viewModel.getTransactions()
 
         viewModel.bookItems.observe(this) {
             binding.rvBookItems.apply {
@@ -42,10 +44,21 @@ class DashboardActivity : AppCompatActivity(), BookItemsAdapter.Callback {
         }
 
         viewModel.totals.observe(this) {
-            binding.tvSubTotalValue.text = "\$${String.format("%.2f", it.subTotalAmount)}"
-            binding.tvTaxValue.text = "\$${String.format("%.2f", it.taxAmount)}"
-            binding.tvDiscountValue.text = "\$${String.format("%.2f", it.discountAmount)}"
-            binding.tvGrandTotalValue.text = "\$${String.format("%.2f", it.grandTotal)}"
+            binding.tvSubTotalValue.text = formatAmount(it.subTotalAmount)
+            binding.tvTaxValue.text = formatAmount(it.taxAmount)
+            binding.tvDiscountValue.text = formatAmount(it.discountAmount)
+            binding.tvGrandTotalValue.text = formatAmount(it.grandTotal)
+        }
+
+        viewModel.transactions.observe(this) {
+            binding.tvCustomerCountValue.text = "${it.size}"
+            binding.tvTotalSalesValue.text =
+                formatAmount(it.sumOf { it.txnTotalGrandAmount.toDouble() })
+
+            binding.rvBookItems.apply {
+                layoutManager = LinearLayoutManager(this@DashboardActivity)
+                adapter = TransactionAdapter(it)
+            }
         }
 
         binding.btnSave.setOnClickListener {

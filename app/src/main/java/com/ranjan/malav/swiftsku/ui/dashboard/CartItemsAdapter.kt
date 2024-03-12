@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ranjan.malav.swiftsku.data.model.TransactionItem
 import com.ranjan.malav.swiftsku.databinding.ListCartItemBinding
+import com.ranjan.malav.swiftsku.ui.utils.UiUtils
 
 
 class CartItemsAdapter(
@@ -32,8 +33,7 @@ class CartItemsAdapter(
             with(binding) {
                 tvItemName.text = item.pluItem.itemName
                 tvItemQty.text = "x${item.quantity}"
-                tvItemTotal.text =
-                    "\$${String.format("%.2f", (item.quantity * item.pluItem.price))}"
+                tvItemTotal.text = UiUtils.formatAmount((item.quantity * item.pluItem.price))
             }
         }
     }

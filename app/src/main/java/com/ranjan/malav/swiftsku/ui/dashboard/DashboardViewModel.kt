@@ -36,6 +36,13 @@ class DashboardViewModel @Inject constructor(
     private var savedTrx: Transaction? = null
     private var trxStartTime: Date? = null
 
+    private var _transactions = MutableLiveData<List<Transaction>>()
+    var transactions: LiveData<List<Transaction>> = _transactions
+
+    fun getTransactions() = viewModelScope.launch(Dispatchers.IO) {
+        _transactions.postValue(trxRepo.getAllTransactions())
+    }
+
     fun getPriceBookData() = viewModelScope.launch(Dispatchers.IO) {
         _bookItems.postValue(priceBookRepo.getPriceBook())
     }
