@@ -5,7 +5,6 @@ import com.ranjan.malav.swiftsku.data.local.AppDatabase
 import com.ranjan.malav.swiftsku.data.local.dao.TransactionDao
 import com.ranjan.malav.swiftsku.data.repository.PriceBookRepository
 import com.ranjan.malav.swiftsku.data.repository.TransactionRepository
-import com.ranjan.malav.swiftsku.data.source.TransactionDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,14 +29,8 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideTransactionDataSource(transactionDao: TransactionDao): TransactionDataSource {
-        return TransactionDataSource(transactionDao)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTransactionRepo(dataSource: TransactionDataSource): TransactionRepository {
-        return TransactionRepository(dataSource)
+    fun provideTransactionRepo(transactionDao: TransactionDao): TransactionRepository {
+        return TransactionRepository(transactionDao)
     }
 
     @Provides

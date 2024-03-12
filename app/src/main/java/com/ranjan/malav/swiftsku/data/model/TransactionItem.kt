@@ -5,5 +5,5 @@ import androidx.room.Embedded
 
 data class TransactionItem(
     @Embedded val pluItem: PriceBookItem,
-    val quantity: Int,
+    var quantity: Int,
 )

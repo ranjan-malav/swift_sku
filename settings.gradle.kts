@@ -14,4 +14,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "SwiftSku"
-include(":app")
+include(":app", ":compose")

@@ -9,16 +9,16 @@ import java.util.Date
 
 @Entity
 data class Transaction(
-    @PrimaryKey val txnId: String,
+    @PrimaryKey(autoGenerate = true) val txnId: Int = 0,
     @TypeConverters(TrxItemListConverter::class)
-    val txnItems: List<TransactionItem>,
-    val txnEndTime: Date,
-    val txnTotalGrandAmount: Float,
-    val txnTotalDiscountAmount: Float,
-    val txnTotalTaxAmount: Float,
-    val txnSubTotalAmount: Float,
-    val txnStatus: TransactionStatus, // COMPLETED, SAVED
-    val txnStartTime: Date
+    var txnItems: List<TransactionItem>,
+    var txnEndTime: Date? = null,
+    var txnTotalGrandAmount: Float,
+    var txnTotalDiscountAmount: Float,
+    var txnTotalTaxAmount: Float,
+    var txnSubTotalAmount: Float,
+    var txnStatus: TransactionStatus, // COMPLETED, SAVED
+    var txnStartTime: Date
 )
 
 enum class TransactionStatus {

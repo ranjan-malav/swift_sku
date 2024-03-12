@@ -1,20 +1,24 @@
 package com.ranjan.malav.swiftsku.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.ranjan.malav.swiftsku.data.model.Transaction
+import com.ranjan.malav.swiftsku.data.model.TransactionStatus
 
 
 @Dao
 interface TransactionDao {
     @Query("SELECT * FROM `transaction`")
-    fun getAll(): List<Transaction>
+    suspend fun getAll(): List<Transaction>
 
     @Insert
-    fun insertAll(vararg users: Transaction)
+    suspend fun insertAll(vararg trxs: Transaction)
 
-    @Delete
-    fun delete(user: Transaction)
+    @Upsert
+    suspend fun upsert(trx: Transaction)
+
+    @Query("SELECT * from `transaction` WHERE txnStatus = :status")
+    suspend fun findTrxByStatus(status: TransactionStatus): Transaction?
 }
