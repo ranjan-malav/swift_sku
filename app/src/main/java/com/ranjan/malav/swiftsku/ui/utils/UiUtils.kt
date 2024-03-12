@@ -22,6 +22,14 @@ object UiUtils {
         val formatter = SimpleDateFormat("MMM d, yyyy HH:mm a", Locale.ROOT)
         return formatter.format(calendar.time)
     }
+
+    fun formatTime(time: Date?): String {
+        if (time == null) return ""
+        val calendar = Calendar.getInstance()
+        calendar.time = time
+        val formatter = SimpleDateFormat("HH:mm a", Locale.ROOT)
+        return formatter.format(calendar.time)
+    }
 }
 
 val Int.percent: Dp

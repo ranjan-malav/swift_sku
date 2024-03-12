@@ -25,6 +25,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,12 +57,21 @@ fun DashboardLayout(
     val itemClick: (item: PriceBookItem) -> Unit = {
         viewModel.selectItem(it)
     }
+    var showTransactions by remember { mutableStateOf(false) }
+    val showTrxs: () -> Unit = {
+        showTransactions = true
+    }
 
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
         LeftSection(cartItems, totals)
-        RightSection(transactions, bookItems, itemClick, viewModel)
+        RightSection(
+            transactions, bookItems, itemClick, viewModel, showTrxs
+        )
+        if (showTransactions) {
+            TransactionDialog(viewModel, hideTrxs = { showTransactions = false })
+        }
     }
 }
 
@@ -247,7 +259,8 @@ fun RightSection(
     transactions: List<Transaction>,
     bookItems: List<PriceBookItem>,
     onItemClick: (item: PriceBookItem) -> Unit,
-    viewModel: DashboardViewModel
+    viewModel: DashboardViewModel,
+    showTrxs: () -> Unit
 ) {
     val totalSales = transactions.sumOf { it.txnTotalGrandAmount.toDouble() }
     val totalCount = transactions.size
@@ -270,7 +283,7 @@ fun RightSection(
             ) {
                 BookItems(bookItems, onItemClick)
             }
-            ActionFooter(viewModel)
+            ActionFooter(viewModel, showTrxs)
         }
     }
 }
@@ -331,7 +344,10 @@ fun BookItems(
 }
 
 @Composable
-fun ActionFooter(viewModel: DashboardViewModel) {
+fun ActionFooter(
+    viewModel: DashboardViewModel,
+    showTrxs: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -363,7 +379,7 @@ fun ActionFooter(viewModel: DashboardViewModel) {
             }
         )
         ClickableText(
-            onClick = { },
+            onClick = { showTrxs() },
             modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 8.dp),
             text = buildAnnotatedString {
                 withStyle(

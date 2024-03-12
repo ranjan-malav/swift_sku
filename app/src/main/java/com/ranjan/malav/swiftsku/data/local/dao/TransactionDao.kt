@@ -13,6 +13,9 @@ interface TransactionDao {
     @Query("SELECT * FROM `transaction`")
     suspend fun getAll(): List<Transaction>
 
+    @Query("SELECT * from `transaction` WHERE txnStatus = :status")
+    suspend fun getCompletedTransactions(status: TransactionStatus): List<Transaction>
+
     @Insert
     suspend fun insertAll(vararg trxs: Transaction)
 

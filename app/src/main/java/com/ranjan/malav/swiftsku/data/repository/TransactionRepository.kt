@@ -9,7 +9,7 @@ import javax.inject.Inject
 class TransactionRepository @Inject constructor(
     private val trxDao: TransactionDao,
 ) {
-    suspend fun getAllTransactions() = trxDao.getAll()
+    suspend fun getCompletedTransactions() = trxDao.getCompletedTransactions(TransactionStatus.COMPLETED)
 
     suspend fun insert(trx: Transaction) = trxDao.insertAll(trx)
 
